@@ -57,7 +57,7 @@ class Agent:
       self.vx *= -1
     if self.y < AGENT_RADIUS or self.y > SCREEN_HEIGHT - AGENT_RADIUS:
       self.vy *= -1
-      
+
     # Check for collisions with other agents
     for other_agent in agents:
       if other_agent == self:
@@ -65,24 +65,19 @@ class Agent:
       distance = ((self.x - other_agent.x) ** 2 + (self.y - other_agent.y) ** 2) ** 0.5
       if distance < INFECTION_RADIUS:
         if other_agent.state == 'infected' and self.state != 'immune':
-          if random.random() < INFECTION_PROBABILITY:
+          # If the self.agent is not immunocompromised, then the probability of infection is 40%
+          if not self.immunocompromised and random.random() < INFECTION_PROBABILITY:
             self.state = 'infected'
             self.infection_time = day
-            # Set the state of the other agent to infected
-            other_agent.state = 'infected'
-            other_agent.infection_time = day
             break
-          elif other_agent.state == 'immune' and self.state == 'infected':
-            # Skip infection check if other agent is immune and self is infected
+          elif self.state == 'infected':
+            # Skip infection check if self.agent is already infected
             break
-          elif other_agent.state == 'susceptible' and self.immunocompromised and not other_agent.immunocompromised:
-            if random.random() < INFECTION_PROBABILITY * 2:
-                self.state = 'infected'
-                self.infection_time = day
-                # Set the state of the other agent to infected
-                other_agent.state = 'infected'
-                other_agent.infection_time = day
-                break
+          # If the self.agent is immunocompromised, then the probability of infection is 80%
+          elif self.immunocompromised and random.random() < INFECTION_PROBABILITY * 2:
+            self.state = 'infected'
+            self.infection_time = day
+            break
       
       # Update the agent's state
       if self.state == 'infected':
